@@ -9,7 +9,7 @@ do
     esac
 done
 
-root_dir=$(readlink -f $0)
+root_dir="$(pwd)"
 astrobee_dir=${root_dir}/astrobee/src/astrobee
 if [ ! -e ${astrobee_dir} ]; then
     sudo apt-get update
