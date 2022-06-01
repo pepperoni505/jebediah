@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# cd to sim folder, no matter where we are calling this script
+cd "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/../sim"
+
 rootdir=$(dirname "$(readlink -f "$0")")
 cd $rootdir
 export bootstrap_dir=${rootdir}/bootstrap
