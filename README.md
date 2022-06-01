@@ -2,6 +2,31 @@
 
 NASA Kibo-RPC Submission
 
+## Required software
+
+Windows 10 or newer
+
+[git](https://git-scm.com/downloads)
+
+[Docker](https://docs.docker.com/get-docker/) (You do not need an account to use Docker)
+
+[wsl](https://docs.microsoft.com/en-us/windows/wsl/install)
+
+## Cloning and setup
+
+**Run all of these commands inside of a WSL terminal**
+
+```shell
+git clone https://github.com/pepperoni505/jebediah
+cd jebediah/sim
+./build.sh
+```
+
+#### Docker configuration
+
+- Go to Docker Desktop and open your settings.
+- Go to `Resources` -> `WSL Integration`. Under `Enable integration with additional distros:`, enable your WSL distro and click `Apply & Restart`
+
 #### Install Android SDK
 
 - Go to <https://developer.android.com/studio/archive> and agree to the terms and conditions
@@ -19,3 +44,25 @@ NASA Kibo-RPC Submission
 - Click `Apply` and install the new components
 
 **Important: If prompted, do NOT update Gradle**
+
+#### Install and setup XServer
+
+- Download and install [VcXsrv](https://sourceforge.net/projects/vcxsrv/files/latest/download) in your `Program Files` folder.
+
+TODO: auto start and detect if already running, as well as describe sim build process
+
+#### WSL configuration
+
+- Run `sudo nano /etc/hosts` and add the following lines
+  - ```text
+    127.0.0.1 hlp
+    127.0.0.1 mlp
+    127.0.0.1 llp
+    ```
+
+## How to run the local simulator
+
+`cd sim`
+`bash ./run.sh`
+
+##### TODO: further instructions

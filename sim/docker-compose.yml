@@ -1,0 +1,32 @@
+version: "3"
+services:
+  sim:
+    image: ghcr.io/pepperoni505/astrobee-krpc:astrobee_sim-base-3.0.0
+    volumes:
+      - "${XSOCK}:${XSOCK}:rw"
+      - "${XAUTH}:${XAUTH}:rw"
+      - "${pcd_dir}:/src/astrobee/src/simulation/pcd"
+      - "${bootstrap_dir}:/tmp/bootstrap"
+    environment:
+      - "XAUTHORITY=${XAUTH}"
+      - "DISPLAY"
+      - "ROS_MASTER_URI=http://${ROS_IP}:11311"
+      - "ROS_HOSTNAME=${ROS_IP}"
+    user: "astrobee"
+    container_name: astrobee
+    stdin_open: true
+    tty: true
+    privileged: true
+    network_mode: "host"
+    entrypoint: /astrobee_init.sh bash /tmp/bootstrap/run.sh
+  emulator:
+    image: budtmo/docker-android-x86-7.1.1
+    ports:
+      - 6080:6080
+      - 5554:5554
+      - 5555:5555
+    environment:
+      - "DEVICE=Samsung Galaxy S10" # Nexus 5 is recommended, however it does not work
+      - "AVD_NAME=AstrobeeAndroidSim"
+    container_name: android-container
+    privileged: true
