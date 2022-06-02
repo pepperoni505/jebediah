@@ -12,15 +12,6 @@ Windows 10 or newer
 
 [wsl](https://docs.microsoft.com/en-us/windows/wsl/install)
 
-## Cloning and setup
-
-**Run all of these commands inside of a WSL terminal**
-
-```shell
-git clone https://github.com/pepperoni505/jebediah
-./scripts/setup.sh
-```
-
 #### Docker configuration
 
 - Go to Docker Desktop and open your settings.
@@ -53,7 +44,7 @@ TODO: auto start and detect if already running, as well as describe sim build pr
 ## How to run the local simulator
 
 1. Make sure XServer is running
-    - Run the command `"C:\Program Files\VcXsrv\xlaunch.exe\" -run ./sim/config.xlaunch`
+    - Run the command `"C:\Program Files\VcXsrv\xlaunch.exe\" -run ./scripts/config.xlaunch`
     - **Do NOT run more than one instance of XServer!**
 2. Run `./scripts/run.sh` in a WSL terminal instance
 

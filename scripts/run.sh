@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # cd to sim folder, no matter where we are calling this script
-cd "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/../sim"
+cd "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/"
+
+echo "Building Android Emulator"
+# Build local docker image
+docker build -t astrobee-android-sim .
 
 rootdir=$(dirname "$(readlink -f "$0")")
 cd $rootdir

@@ -11,24 +11,20 @@ services:
       - "XAUTHORITY=${XAUTH}"
       - "DISPLAY"
     extra_hosts:
-      - "hlp:127.0.0.1"
-      - "mlp:127.0.0.1"
-      - "llp:127.0.0.1"
+      - "hlp:10.42.0.36"
+      - "mlp:10.42.0.35"
+      - "llp:10.42.0.34"
     user: "astrobee"
     container_name: astrobee
-    stdin_open: true
-    tty: true
     privileged: true
     network_mode: "host"
     entrypoint: /astrobee_init.sh bash /tmp/bootstrap/run.sh
-  emulator:
-    image: budtmo/docker-android-x86-7.1.1
-    ports:
-      - 6080:6080
-      - 5554:5554
-      - 5555:5555
-    environment:
-      - "DEVICE=Samsung Galaxy S10" # Nexus 5 is recommended, however it does not work
-      - "AVD_NAME=AstrobeeAndroidSim"
-    container_name: android-container
-    privileged: true
+  android-emulator:
+    image: astrobee-android-sim
+    volumes:
+      - "${PWD}/../:/jebediah"
+    extra_hosts:
+      - "hlp:10.42.0.36"
+      - "mlp:10.42.0.35"
+      - "llp:10.42.0.34"
+    entrypoint: bash /jebediah/scripts/entrypoint.sh
