@@ -18,8 +18,7 @@ Windows 10 or newer
 
 ```shell
 git clone https://github.com/pepperoni505/jebediah
-cd jebediah/sim
-./build.sh
+./scripts/setup.sh
 ```
 
 #### Docker configuration
@@ -51,18 +50,8 @@ cd jebediah/sim
 
 TODO: auto start and detect if already running, as well as describe sim build process
 
-#### WSL configuration
-
-- Run `sudo nano /etc/hosts` and add the following lines
-  - ```text
-    127.0.0.1 hlp
-    127.0.0.1 mlp
-    127.0.0.1 llp
-    ```
-
 ## How to run the local simulator
 
-`cd sim`
-`bash ./run.sh`
+`./scripts/run.sh`
 
 ##### TODO: further instructions

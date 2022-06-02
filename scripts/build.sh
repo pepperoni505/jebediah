@@ -1,3 +1,6 @@
+# cd to root folder, no matter where we are calling this script
+cd "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/.."
+
 docker run \
     --rm \
     -v `pwd`:/jebediah \
