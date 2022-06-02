@@ -10,8 +10,10 @@ services:
     environment:
       - "XAUTHORITY=${XAUTH}"
       - "DISPLAY"
-      - "ROS_MASTER_URI=http://${ROS_IP}:11311"
-      - "ROS_HOSTNAME=${ROS_IP}"
+    extra_hosts:
+      - "hlp:127.0.0.1"
+      - "mlp:127.0.0.1"
+      - "llp:127.0.0.1"
     user: "astrobee"
     container_name: astrobee
     stdin_open: true

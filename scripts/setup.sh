@@ -15,7 +15,6 @@ cd "$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )/../sim"
 root_dir=$(pwd)
 astrobee_dir=${root_dir}/astrobee/src/astrobee
 if [ ! -e ${astrobee_dir} ]; then
-    sudo apt-get install build-essential git
     git clone https://github.com/nasa/astrobee.git \
         -b ${git_tag} \
         --depth 1 \

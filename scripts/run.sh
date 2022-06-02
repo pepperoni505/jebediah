@@ -21,5 +21,5 @@ export DISPLAY=$(ip route list default | awk '{print $3}'):0
 export LIBGL_ALWAYS_INDIRECT=1
 export ROS_IP=$(getent hosts llp | awk '{ print $1 }')
 
-docker compose build
-docker compose up
+docker-compose build
+docker-compose up
