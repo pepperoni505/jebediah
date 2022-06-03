@@ -1,6 +1,7 @@
 package jp.jaxa.iss.kibo.rpc.jebediah;
 
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
+import static KiboConstants.*;
 
 /**
  * Class meant to handle commands from the Ground Data System and execute them in Astrobee
