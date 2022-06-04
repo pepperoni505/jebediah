@@ -11,29 +11,29 @@ public final class KiboConstants {
 
     // Points
     public static final Point ASTROBEE_START_POS = new Point(10.76150, -6.88490, 5.31647);
-    public static final Quaternion ASTROBEE_START_ROT = new Quaternion(0, 0, -0.707, 0.707);
+    public static final Quaternion ASTROBEE_START_ROT = new Quaternion(0, 0, -0.707F, 0.707F);
 
     public static final Point POINT_1_POS = new Point(10.71000, -7.70000, 4.48000);
-    public static final Quaternion POINT_1_ROT = new Quaternion(0, 0.707, 0, 0.707);
+    public static final Quaternion POINT_1_ROT = new Quaternion(0, 0.707F, 0, 0.707F);
 
     public static final Point POINT_2_POS = new Point(11.27460, -9.92284, 5.29881);
-    public static final Quaternion POINT_2_ROT = new Quaternion(0, 0, -0.707, 0.707);
+    public static final Quaternion POINT_2_ROT = new Quaternion(0, 0, -0.707F, 0.707F);
 
     public static final Point GOAL_POS = new Point(11.27460, -7.89178, 4.96538);
-    public static final Quaternion GOAL_ROT = new Quaternion(0, 0, -0.707, 0.707);
+    public static final Quaternion GOAL_ROT = new Quaternion(0, 0, -0.707F, 0.707F);
 
     // Target info
     public static final int TARGET_1_LENGTH_CM = 27;
     public static final int TARGET_1_HEIGHT_CM = 15;
     public static final int TARGET_1_AR_TAG_SIZE_CM = 5;
     public static final int TARGET_1_RADIUS_CM = 5;
-    public static final int[] TARGET_1_CENTER_TAG_TO_BULLSEYE_CM_XY = {10, 3.75}; // Distance from center of an AR tag to the center of the bullseye. NOTE: the X & Y flip signs depending on tag number. See 2.2.3 in the rulebook
+    public static final double[] TARGET_1_CENTER_TAG_TO_BULLSEYE_CM_XY = {10, 3.75}; // Distance from center of an AR tag to the center of the bullseye. NOTE: the X & Y flip signs depending on tag number. See 2.2.3 in the rulebook
 
     // For target 2, we aren't given explicit length and height, so let's not rely on that for now. Maybe we should email to confirm?
-    public static final int TARGET_1_AR_TAG_SIZE_CM = 5;
-    public static final int TARGET_1_RADIUS_CM = 5;
-    public static final int[] TARGET_1_CENTER_TAG_TO_BULLSEYE_CM_XY = {11.25, 4.15};
-    public static final double TARGET_2_BULLSEYE_ERROR_CM = 2.5 // The center of the target can move +- 2.5cm in X/Y from the distance specified above
+    public static final int TARGET_2_AR_TAG_SIZE_CM = 5;
+    public static final int TARGET_2_RADIUS_CM = 5;
+    public static final double[] TARGET_2_CENTER_TAG_TO_BULLSEYE_CM_XY = {11.25, 4.15};
+    public static final double TARGET_2_BULLSEYE_ERROR_CM = 2.5; // The center of the target can move +- 2.5cm in X/Y from the distance specified above
 
     // Keep out/in zones
     public static final PointRange[] KEEP_OUT_ZONE = {
