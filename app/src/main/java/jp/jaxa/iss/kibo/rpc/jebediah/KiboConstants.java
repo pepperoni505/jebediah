@@ -1,8 +1,8 @@
 package jp.jaxa.iss.kibo.rpc.jebediah;
 
-import PointRange;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
+import jp.jaxa.iss.kibo.rpc.jebediah.PointRange;
 
 public final class KiboConstants {
 
