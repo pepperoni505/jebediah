@@ -34,5 +34,4 @@ google-services.json
 *.hprof
 .DS_Store
 
-# Sim files
-/sim/astrobee/
+gradle.properties
