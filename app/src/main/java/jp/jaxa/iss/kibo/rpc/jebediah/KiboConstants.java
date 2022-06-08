@@ -37,8 +37,8 @@ public final class KiboConstants {
 
     // Keep out/in zones
     public static final PointRange[] KEEP_OUT_ZONE = {
-        new PointRange(new Point(9.8673, -9.18813, 3.81957), new Point(10.7673, -8.28813, 4.81957)),
         new PointRange(new Point(9.8585, -9.4500, 4.82063), new Point(12.0085, -8.5000, 4.87063)),
+        new PointRange(new Point(9.8673, -9.18813, 3.81957), new Point(10.7673, -8.28813, 4.81957)),
         new PointRange(new Point(11.1067, -9.44819, 4.87385), new Point(12.0067, -8.89819, 5.87385))
     };
     public static final PointRange[] KEEP_IN_ZONE = {
