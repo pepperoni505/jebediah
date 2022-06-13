@@ -24,9 +24,9 @@ public class YourService extends KiboRpcService {
     protected void runPlan1() {
         api.startMission();
         // Make sure we're at the start point
-        safe_move_to(KiboConstants.ASTROBEE_START_POS, KiboConstants.ASTROBEE_START_ROT, false);
+        safeMoveTo(KiboConstants.ASTROBEE_START_POS, KiboConstants.ASTROBEE_START_ROT, false);
         // Move to point 1
-        safe_move_to(KiboConstants.POINT_1_POS, KiboConstants.POINT_1_ROT, false);
+        safeMoveTo(KiboConstants.POINT_1_POS, KiboConstants.POINT_1_ROT, false);
         api.reportPoint1Arrival();
 
         // Shoot laser
@@ -35,7 +35,7 @@ public class YourService extends KiboRpcService {
         api.laserControl(false);
 
         // Move to point 2
-        safe_move_to(KiboConstants.POINT_2_POS, KiboConstants.POINT_2_ROT, false);
+        safeMoveTo(KiboConstants.POINT_2_POS, KiboConstants.POINT_2_ROT, false);
 
         // Shoot laser
         api.laserControl(true);
@@ -43,7 +43,7 @@ public class YourService extends KiboRpcService {
         api.laserControl(false);
 
         // Move to goal point
-        safe_move_to(KiboConstants.GOAL_POS, KiboConstants.GOAL_ROT, false);
+        safeMoveTo(KiboConstants.GOAL_POS, KiboConstants.GOAL_ROT, false);
 
         api.reportMissionCompletion();
     }
@@ -64,7 +64,7 @@ public class YourService extends KiboRpcService {
      * @param quaternion {@link Quaternion} to rotate to
      * @param print_position {@code boolean} representing if Astrobee's position should be logged to the console
      */
-    public void safe_move_to(Point point, Quaternion quaternion, boolean print_position) {
+    public void safeMoveTo(Point point, Quaternion quaternion, boolean print_position) {
         AStar aStar = new AStar(cells);
         Point start = api.getRobotKinematics().getPosition();
         Log.i("KiboRpcApi","INFO: Starting A* search");
