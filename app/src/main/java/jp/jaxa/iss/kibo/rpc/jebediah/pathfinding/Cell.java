@@ -140,7 +140,7 @@ public class Cell {
     public ArrayList<Cell> getNeighbors(ArrayList<Cell> cells) {
         // The easiest way to quickly calculate our neighbors is to slightly scale up our current cell by half the size of the smallest possible cell, then check for any intersections with other cells.
         double[] scale = {max.getX() - min.getX(), max.getY() - min.getY(), max.getZ() - min.getZ()};
-        for (int i = 0; i < (depth - KiboConstants.MAX_CELL_DEPTH) + 1; i++) {
+        for (int i = 0; i < (depth - KiboConstants.MAX_CELL_DEPTH) + 1; i++) { // TODO: get rid of KiboConstants
             for (int axis = 0; axis < scale.length; axis++) {
                 scale[axis] /= 2;
             }
@@ -167,8 +167,8 @@ public class Cell {
      * @return {@link ArrayList<Cell>} of split cells
      */
     public ArrayList<Cell> subdivideCell(int maxCellDepth, PointRange[] keepInZones, PointRange[] keepOutZones) {
-        if (isWithinGeometry(keepOutZones) || !(depth <= maxCellDepth && intersectsGeometries(keepInZones) &&
-                intersectsGeometries(keepOutZones) || !isWithinGeometry(keepInZones))) {
+        if (isWithinGeometry(keepOutZones) || !((depth <= maxCellDepth) && (intersectsGeometries(keepInZones)) &&
+                (intersectsGeometries(keepOutZones) || !isWithinGeometry(keepInZones)))) {
             if (intersectsGeometries(keepOutZones) || !isWithinGeometry(keepInZones)) {
                 unsafe = true;
             }

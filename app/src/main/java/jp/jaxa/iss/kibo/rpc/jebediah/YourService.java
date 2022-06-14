@@ -23,6 +23,7 @@ public class YourService extends KiboRpcService {
     @Override
     protected void runPlan1() {
         api.startMission();
+        api.moveTo(KiboConstants.POINT_1_POS, KiboConstants.POINT_1_ROT, false);
         // Make sure we're at the start point
         safeMoveTo(KiboConstants.ASTROBEE_START_POS, KiboConstants.ASTROBEE_START_ROT, false);
         // Move to point 1
@@ -65,10 +66,11 @@ public class YourService extends KiboRpcService {
      * @param print_position {@code boolean} representing if Astrobee's position should be logged to the console
      */
     public void safeMoveTo(Point point, Quaternion quaternion, boolean print_position) {
-        AStar aStar = new AStar(cells);
+        AStar aStar = new AStar(cells, cells.getCellFromPoint(point));
         Point start = api.getRobotKinematics().getPosition();
         Log.i("KiboRpcApi","INFO: Starting A* search");
-        ArrayList<Cell> segments = aStar.aStar(cells.getCellFromPoint(start), cells.getCellFromPoint(point));
+        ArrayList<Cell> segments = aStar.aStar(cells.getCellFromPoint(start));
+        segments.add(cells.getCellFromPoint(point)); // Add our final position
         Log.i("KiboRpcApi","INFO: A* search finished! Route is " + segments.size() + " cells long");
         for (Cell cell : segments) {
             Point moveToPoint = cell.getCenter();

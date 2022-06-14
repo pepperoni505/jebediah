@@ -60,6 +60,6 @@ public final class KiboConstants {
     public static final double ASTROBEE_MIN_ROTATING_ANGLE_DEG = 7.5;
 
     // Custom constants
-    public static final int MAX_CELL_DEPTH = 3;
+    public static final int MAX_CELL_DEPTH = 4;
     public static final int MOVE_TO_RETRIES = 5;
 }

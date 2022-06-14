@@ -6,12 +6,13 @@ import java.util.ArrayList;
 
 public class AStar {
     private final CellGrid grid;
+    private final Cell goal;
     private ArrayList<Cell> open;
     private ArrayList<Cell> closed;
-    private Cell goal;
 
-    public AStar(CellGrid grid) {
+    public AStar(CellGrid grid, Cell goal) {
         this.grid = grid;
+        this.goal = goal;
     }
 
     public static int hScore(Cell start, Cell end) {
@@ -62,9 +63,22 @@ public class AStar {
         return true;
     }
 
-    public ArrayList<Cell> aStar(Cell start, Cell goal) {
-        open.clear();
-        closed.clear();
+    /**
+     * Since Java doesn't support passing an index that is out of range of the list, we have to check if we can insert the value at the specified index, and if not,
+     * add to the last position in the open ArrayList
+     * @param index {@code int} representing the index to insert at
+     * @param value {@link Cell} to insert
+     */
+    private void safeAddToOpen(int index, Cell value) {
+        if (index > open.size()) {
+            index = open.size();
+        }
+        open.add(index, value);
+    }
+
+    public ArrayList<Cell> aStar(Cell start) {
+        open = new ArrayList<>();
+        closed = new ArrayList<>();
         for (Cell cell : grid.getCells()) { // This could be a stream, but for some reason Gradle throws a fit when trying to use Java 1.8 features
             if (cell.getUnsafe()) {
                 closed.add(cell);
@@ -72,7 +86,7 @@ public class AStar {
         }
         start.setgScore(0);
         start.setParent(start);
-        open.add(AStar.hScore(start, goal), start);
+        safeAddToOpen(AStar.hScore(start, goal), start);
         while (!open.isEmpty()) {
             Cell s = open.remove(open.size() - 1);
 
@@ -103,7 +117,7 @@ public class AStar {
         computeCost(s, s2);
         if (s2.getgScore() < oldgScore) {
             open.remove(s2);
-            open.add(s2.getgScore() + AStar.hScore(s2, goal), s2);
+            safeAddToOpen(s2.getgScore() + AStar.hScore(s2, goal), s2);
         }
     }
 
@@ -125,7 +139,7 @@ public class AStar {
         double xs, ys, zs;
 
         if (x2 > x1) {
-            xs = 0.0;
+            xs = 0.01;
         } else {
             xs = -0.01;
         }

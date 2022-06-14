@@ -1,5 +1,6 @@
 package jp.jaxa.iss.kibo.rpc.jebediah.pathfinding;
 
+import android.util.Log;
 import gov.nasa.arc.astrobee.types.Point;
 import jp.jaxa.iss.kibo.rpc.jebediah.PointRange;
 
@@ -10,9 +11,9 @@ public class CellGrid {
 
     public CellGrid(int maxCellDepth, PointRange[] keepInZones, PointRange[] keepOutZones) {
         Cell boundingBox = Cell.generateBoundingBox(keepInZones);
-        System.out.println("INFO: Starting cell split");
+        Log.i("KiboRpcApi","INFO: Starting cell split");
         cells = boundingBox.subdivideCell(maxCellDepth, keepInZones, keepOutZones);
-        System.out.println("INFO: " + cells.size() + " cells were generated");
+        Log.i("KiboRpcApi","INFO: " + cells.size() + " cells were generated");
     }
 
     public ArrayList<Cell> getCells() {
