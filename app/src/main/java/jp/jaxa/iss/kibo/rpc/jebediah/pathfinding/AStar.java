@@ -78,8 +78,8 @@ public class AStar {
 
     /**
      * Find a path in between two cells that is safe for Astrobee to traverse. Uses the A* algorithm as detailed in the first part of http://idm-lab.org/bib/abstracts/papers/aaai10b.pdf
-     * @param start
-     * @return
+     * @param start {@link Cell} to start search from
+     * @return {@link ArrayList<Cell>} of cells to traverse to
      */
     public ArrayList<Cell> pathfind(Cell start) {
         open = new ArrayList<>();
