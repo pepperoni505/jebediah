@@ -1,7 +1,6 @@
 package jp.jaxa.iss.kibo.rpc.jebediah.pathfinding;
 
 import gov.nasa.arc.astrobee.types.Point;
-import jp.jaxa.iss.kibo.rpc.jebediah.KiboConstants;
 import jp.jaxa.iss.kibo.rpc.jebediah.PointRange;
 
 import java.util.ArrayList;
@@ -10,9 +9,12 @@ public class Cell {
     private final int depth;
     private final Point min;
     private final Point max;
-    private boolean unsafe;
+    private boolean opened;
+    private boolean closed;
     private int gScore;
+    private int fScore;
     private Cell parent;
+    private boolean unsafe; // Similar to closed, but only used to keep track of state internally
 
     public Cell() {
         this(0, new Point(), new Point());
@@ -35,11 +37,18 @@ public class Cell {
         );
     }
 
-    public boolean getUnsafe() {
-        return unsafe;
+    public boolean getOpened() {
+        return opened;
     }
-    public void setUnsafe(boolean unsafe) {
-        this.unsafe = unsafe;
+    public void setOpened(boolean opened) {
+        this.opened = opened;
+    }
+
+    public boolean getClosed() {
+        return closed;
+    }
+    public void setClosed(boolean closed) {
+        this.closed = closed;
     }
 
     public Point getMin() {
@@ -56,11 +65,22 @@ public class Cell {
         this.gScore = gScore;
     }
 
+    public int getfScore() {
+        return fScore;
+    }
+    public void setfScore(int fScore) {
+        this.fScore = fScore;
+    }
+
     public Cell getParent() {
         return parent;
     }
     public void setParent(Cell parent) {
         this.parent = parent;
+    }
+
+    public int getDepth() {
+        return depth;
     }
 
     /**
@@ -133,36 +153,7 @@ public class Cell {
     }
 
     /**
-     * Find the immediate neighbors of the cell
-     * @param cells {@link ArrayList<Cell>} of cells to check
-     * @return {@link ArrayList<Cell>} of cells that are neighbors
-     */
-    public ArrayList<Cell> getNeighbors(ArrayList<Cell> cells) {
-        // The easiest way to quickly calculate our neighbors is to slightly scale up our current cell by half the size of the smallest possible cell, then check for any intersections with other cells.
-        double[] scale = {max.getX() - min.getX(), max.getY() - min.getY(), max.getZ() - min.getZ()};
-        for (int i = 0; i < (depth - KiboConstants.MAX_CELL_DEPTH) + 1; i++) { // TODO: get rid of KiboConstants
-            for (int axis = 0; axis < scale.length; axis++) {
-                scale[axis] /= 2;
-            }
-        }
-
-        PointRange resizedCell = new PointRange(
-                new Point(min.getX() - scale[0], min.getY() - scale[1], min.getZ() - scale[2]),
-                new Point(max.getX() + scale[0], max.getY() + scale[1], max.getZ() + scale[2])
-        );
-
-        ArrayList<Cell> neighbors = new ArrayList<>();
-        for (Cell cell : cells) {
-            if (this != cell && cell.intersectsGeometries(new PointRange[] {resizedCell})) {
-                neighbors.add(cell);
-            }
-        }
-
-        return neighbors;
-    }
-
-    /**
-     * Divide the cell recursively until it does not intersect with unsafe geometry or until it has reached the maximum recursion depth
+     * Divide the cell recursively until it does not intersect with closed geometry or until it has reached the maximum recursion depth
      *
      * @return {@link ArrayList<Cell>} of split cells
      */
@@ -170,6 +161,7 @@ public class Cell {
         if (isWithinGeometry(keepOutZones) || !((depth <= maxCellDepth) && (intersectsGeometries(keepInZones)) &&
                 (intersectsGeometries(keepOutZones) || !isWithinGeometry(keepInZones)))) {
             if (intersectsGeometries(keepOutZones) || !isWithinGeometry(keepInZones)) {
+                closed = true;
                 unsafe = true;
             }
             return new ArrayList<>();
@@ -211,5 +203,16 @@ public class Cell {
         }
 
         return newCells;
+    }
+
+    /**
+     * Reset pathfinding values to prepare for new search
+     */
+    public void reset() {
+        opened = false;
+        closed = unsafe; // If cell is unsafe, closed needs to reflect that for future runs
+        gScore = 0;
+        fScore = 0;
+        parent = null;
     }
 }

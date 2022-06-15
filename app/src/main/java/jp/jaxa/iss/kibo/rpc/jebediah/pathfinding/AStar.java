@@ -3,59 +3,59 @@ package jp.jaxa.iss.kibo.rpc.jebediah.pathfinding;
 import gov.nasa.arc.astrobee.types.Point;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class AStar {
     private final CellGrid grid;
     private final Cell goal;
     private ArrayList<Cell> open;
-    private ArrayList<Cell> closed;
 
     public AStar(CellGrid grid, Cell goal) {
         this.grid = grid;
         this.goal = goal;
     }
 
-    public static int hScore(Cell start, Cell end) {
-        return (int) Math.sqrt(
+    public static int heuristic(Cell start, Cell end) {
+        return (int) (Math.sqrt(
                 Math.pow((end.getCenter().getX() - start.getCenter().getX()), 2) +
                         Math.pow((end.getCenter().getY() - start.getCenter().getY()), 2) +
                         Math.pow((end.getCenter().getZ() - start.getCenter().getZ()), 2)
-        ) * 10000; // Since our coordinate system is very small, we need to multiply by a large factor so that we don't lose precision when converting to an int
+        ) * 10000); // Since our coordinate system is very small, we need to multiply by a large factor so that we don't lose precision when converting to an int
     }
 
-    public static ArrayList<Cell> reconstructPath(Cell s) {
-        ArrayList<Cell> totalPath = new ArrayList<>();
-        totalPath.add(s);
-        if (s.getParent() != s) {
-            totalPath.addAll(reconstructPath(s.getParent()));
+    public ArrayList<Cell> backtrace(Cell node) {
+        ArrayList<Cell> path = new ArrayList<>();
+        path.add(node);
+        while (node.getParent() != null) {
+            node = node.getParent();
+            path.add(node);
         }
-
-        return totalPath;
+        Collections.reverse(path);
+        return path;
     }
 
-    public ArrayList<Cell> postSmoothPath(ArrayList<Cell> path) {
-        int k = 0;
-        ArrayList<Cell> t = new ArrayList<>();
-        t.add(path.get(0));
-        for (int i = 1; i < path.size() - 1; i++) {
-            if (!lineOfSight(t.get(k), path.get(i + 1))) {
-                k++;
-                t.add(path.get(i));
+    public ArrayList<Cell> smoothPath(ArrayList<Cell> path) {
+        ArrayList<Cell> newPath = new ArrayList<>();
+        newPath.add(path.get(0));
+
+        Cell node = path.get(0);
+        for (int i = 2; i < path.size(); ++i) {
+            Cell otherNode = path.get(i);
+            if (lineOfSight(node, otherNode)) {
+                Cell lastValidNode = path.get(i - 1);
+                newPath.add(lastValidNode);
+                node = lastValidNode;
             }
         }
-
-        t.add(path.get(path.size() - 1)); // TODO: this might be wrong
-
-        return t;
+        newPath.add(path.get(path.size() - 1));
+        return newPath;
     }
 
     public boolean lineOfSight(Cell start, Cell end) {
-        Point startCenter = start.getCenter();
-        Point endCenter = end.getCenter();
-        ArrayList<Point> points = AStar.Bresenham3D(startCenter.getX(), startCenter.getY(), startCenter.getZ(), endCenter.getX(), endCenter.getY(), endCenter.getZ());
+        ArrayList<Cell> cells = getCellsInBetween(start, end);
 
-        for (Point point : points) {
-            if (grid.getCellFromPoint(point).getUnsafe()) {
+        for (Cell cell : cells) {
+            if (cell.getClosed()) {
                 return false;
             }
         }
@@ -76,61 +76,68 @@ public class AStar {
         open.add(index, value);
     }
 
-    public ArrayList<Cell> aStar(Cell start) {
+    /**
+     * Find a path in between two cells that is safe for Astrobee to traverse. Uses the A* algorithm as detailed in the first part of http://idm-lab.org/bib/abstracts/papers/aaai10b.pdf
+     * @param start
+     * @return
+     */
+    public ArrayList<Cell> pathfind(Cell start) {
         open = new ArrayList<>();
-        closed = new ArrayList<>();
-        for (Cell cell : grid.getCells()) { // This could be a stream, but for some reason Gradle throws a fit when trying to use Java 1.8 features
-            if (cell.getUnsafe()) {
-                closed.add(cell);
-            }
-        }
         start.setgScore(0);
-        start.setParent(start);
-        safeAddToOpen(AStar.hScore(start, goal), start);
+        start.setfScore(0);
+        open.add(start);
+        start.setOpened(true);
         while (!open.isEmpty()) {
-            Cell s = open.remove(open.size() - 1);
-
-            if (s == goal) {
-                ArrayList<Cell> path = AStar.reconstructPath(s);
-                return postSmoothPath(path);
+            Cell node = open.remove(open.size() - 1);
+            node.setClosed(true);
+            if (node == goal) {
+                return smoothPath(backtrace(node));
             }
 
-            closed.add(s);
+            ArrayList<Cell> neighbors = grid.getCellNeighbors(node);
+            for (Cell neighbor : neighbors) {
+                if (neighbor.getClosed()) {
+                    continue;
+                }
 
-            for (Cell neighbor : s.getNeighbors(grid.getCells())) {
-                if (!closed.contains(neighbor)) {
-                    if (!open.contains(neighbor)) {
-                        neighbor.setgScore(Integer.MAX_VALUE); // Should be infinite, but max value *should* work
-                        neighbor.setParent(null);
+                int ng = neighbor.getgScore() + heuristic(node, neighbor);
+                if (!neighbor.getOpened() || ng < neighbor.getgScore()) {
+                    neighbor.setgScore(ng);
+                    neighbor.setfScore(neighbor.getgScore() + heuristic(neighbor, goal));
+                    neighbor.setParent(node);
+
+                    if (neighbor.getOpened()) {
+                        open.remove(neighbor);
+                        safeAddToOpen(neighbor.getfScore(), neighbor);
+                    } else {
+                        safeAddToOpen(neighbor.getfScore(), neighbor);
+                        neighbor.setOpened(true);
                     }
-
-                    updateVertex(s, neighbor);
                 }
             }
         }
-
         return null;
     }
 
-    public void updateVertex(Cell s, Cell s2) {
-        int oldgScore = s2.getgScore();
-        computeCost(s, s2);
-        if (s2.getgScore() < oldgScore) {
-            open.remove(s2);
-            safeAddToOpen(s2.getgScore() + AStar.hScore(s2, goal), s2);
-        }
-    }
+    /**
+     * Uses Bresenham's algorithm adapted for 3D environments to search for all cells in a linear path between two specified cells
+     * @param start {@link Cell} to start from
+     * @param end {@link Cell} to end at
+     * @return {@link ArrayList<Cell>} containing cells in between the specified range
+     */
+    public ArrayList<Cell> getCellsInBetween(Cell start, Cell end) {
+        Point startCenter = start.getCenter();
+        double x1 = startCenter.getX();
+        double y1 = startCenter.getY();
+        double z1 = startCenter.getZ();
 
-    public void computeCost(Cell s, Cell s2) {
-        if (s.getgScore() + AStar.hScore(s, s2) < s2.getgScore()) {
-            s2.setParent(s);
-            s2.setgScore(s.getgScore() + AStar.hScore(s, s2));
-        }
-    }
+        Point endCenter = end.getCenter();
+        double x2 = endCenter.getX();
+        double y2 = endCenter.getY();
+        double z2 = endCenter.getZ();
 
-    public static ArrayList<Point> Bresenham3D(double x1, double y1, double z1, double x2, double y2, double z2) {
-        ArrayList<Point> listOfPoints = new ArrayList<>();
-        listOfPoints.add(new Point(x1, y1, z1));
+        ArrayList<Point> points = new ArrayList<>();
+        points.add(new Point(x1, y1, z1));
 
         double dx = Math.abs(x2 - x1);
         double dy = Math.abs(y2 - y1);
@@ -173,7 +180,7 @@ public class AStar {
                 }
                 p1 += 2 * dy;
                 p2 += 2 * dz;
-                listOfPoints.add(new Point(x1, y1, z1));
+                points.add(new Point(x1, y1, z1));
             }
         // Driving axis is Y
         } else if(dy >= dx && dy >= dz) {
@@ -193,7 +200,7 @@ public class AStar {
                 p1 += 2 * dx;
                 p2 += 2 * dz;
 
-                listOfPoints.add(new Point(x1, y1, z1));
+                points.add(new Point(x1, y1, z1));
             }
         // Driving axis is Z
         } else {
@@ -211,10 +218,18 @@ public class AStar {
                 }
                 p1 += 2 * dy;
                 p2 += 2 * dx;
-                listOfPoints.add(new Point(x1, y1, z1));
+                points.add(new Point(x1, y1, z1));
             }
         }
 
-        return listOfPoints;
+        ArrayList<Cell> cells = new ArrayList<>();
+        for (Point point : points) {
+            Cell cell = grid.getCellFromPoint(point);
+            if (!cells.contains(cell)) {
+                cells.add(cell);
+            }
+        }
+
+        return cells;
     }
 }
