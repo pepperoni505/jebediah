@@ -39,14 +39,20 @@ public class CellGrid {
      * @return {@link ArrayList<Cell>} of cells that are neighbors
      */
     public ArrayList<Cell> getCellNeighbors(Cell cell) {
-        // The easiest way to quickly calculate our neighbors is to slightly scale up our current cell by half the size of the smallest possible cell, then check for any intersections with other cells.
+        // Pad the size of the original cell with that of a cell at maximum recursive depth minus some offset.
         Point min = cell.getMin();
         Point max = cell.getMax();
         double[] scale = {max.getX() - min.getX(), max.getY() - min.getY(), max.getZ() - min.getZ()};
-        for (int i = 0; i < (cell.getDepth() - maxCellDepth) + 1; i++) {
-            for (int axis = 0; axis < scale.length; axis++) {
+
+        for (int i = 0; i <= maxCellDepth - cell.getDepth(); i++) {
+            for (int axis = 0; axis < 3; axis++) {
                 scale[axis] /= 2;
             }
+        }
+
+        // Limit the size of the extension to the original cell to 99% so that it doesn't invade into the space of a second row of neighbors and only captures the first
+        for (int axis = 0; axis < 3; axis++) {
+            scale[axis] *= 0.99;
         }
 
         PointRange resizedCell = new PointRange(
