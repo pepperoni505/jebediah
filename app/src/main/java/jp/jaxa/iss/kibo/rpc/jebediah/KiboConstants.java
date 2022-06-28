@@ -1,5 +1,9 @@
 package jp.jaxa.iss.kibo.rpc.jebediah;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.jebediah.PointRange;
@@ -28,12 +32,14 @@ public final class KiboConstants {
     public static final int TARGET_1_AR_TAG_SIZE_CM = 5;
     public static final int TARGET_1_RADIUS_CM = 5;
     public static final double[] TARGET_1_CENTER_TAG_TO_BULLSEYE_CM_XY = {10, 3.75}; // Distance from center of an AR tag to the center of the bullseye. NOTE: the X & Y flip signs depending on tag number. See 2.2.3 in the rulebook
+    public static final List<Integer> TARGET_1_IDS = new ArrayList<>(Arrays.asList(1, 2, 3, 4));
 
     // For target 2, we aren't given explicit length and height, so let's not rely on that for now. Maybe we should email to confirm?
     public static final int TARGET_2_AR_TAG_SIZE_CM = 5;
     public static final int TARGET_2_RADIUS_CM = 5;
     public static final double[] TARGET_2_CENTER_TAG_TO_BULLSEYE_CM_XY = {11.25, 4.15};
     public static final double TARGET_2_BULLSEYE_ERROR_CM = 2.5; // The center of the target can move +- 2.5cm in X/Y from the distance specified above
+    public static final List<Integer> TARGET_2_IDS = new ArrayList<>(Arrays.asList(11, 12, 13, 14));
 
     // Keep out/in zones
     public static final PointRange[] KEEP_OUT_ZONE = {
