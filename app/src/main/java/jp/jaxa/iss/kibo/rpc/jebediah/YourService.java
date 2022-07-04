@@ -1,5 +1,6 @@
 package jp.jaxa.iss.kibo.rpc.jebediah;
 
+import android.util.Log;
 import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.ros.internal.util.Constants;
 import gov.nasa.arc.astrobee.types.Point;
@@ -15,6 +16,9 @@ import org.opencv.core.MatOfDouble;
 import org.opencv.core.MatOfInt;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import jp.jaxa.iss.kibo.rpc.jebediah.pathfinding.AStar;
+import jp.jaxa.iss.kibo.rpc.jebediah.pathfinding.Cell;
+import jp.jaxa.iss.kibo.rpc.jebediah.pathfinding.CellGrid;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,14 +30,12 @@ import java.util.List;
 
 public class YourService extends KiboRpcService {
 
-    private final int MOVE_TO_RETRIES = 5;
     private static long idCounter = 0;
+    CellGrid cells = new CellGrid(KiboConstants.MAX_CELL_DEPTH, KiboConstants.KEEP_IN_ZONE, KiboConstants.KEEP_OUT_ZONE);
 
     @Override
     protected void runPlan1() {
         api.startMission();
-        // Make sure we're at the start point
-        safeMoveTo(KiboConstants.ASTROBEE_START_POS, KiboConstants.ASTROBEE_START_ROT, false);
         // Move to point 1
         safeMoveTo(KiboConstants.POINT_1_POS, KiboConstants.POINT_1_ROT, false);
         api.reportPoint1Arrival();
@@ -55,8 +57,6 @@ public class YourService extends KiboRpcService {
         api.laserControl(false);
 
         // Move to point 2
-        safeMoveTo(new Point(11.30, -8.45, 4.58), KiboConstants.POINT_2_ROT, false);
-        safeMoveTo(new Point(11.30,-9.60, 4.58), KiboConstants.POINT_2_ROT, false);
         safeMoveTo(KiboConstants.POINT_2_POS, KiboConstants.POINT_2_ROT, false);
 
         // Wait for camera refresh rate to catch up with final position in front of the target
@@ -69,6 +69,7 @@ public class YourService extends KiboRpcService {
         // Line up bee with target 2
         offset = getTargetOffset(KiboConstants.TARGET_2_IDS);
         safeRelativeMoveTo(new Point(-offset[0] * 0.9, 0, -offset[0] * 0.9), KiboConstants.POINT_2_ROT, false);
+        safeMoveTo(KiboConstants.POINT_2_POS, KiboConstants.POINT_2_ROT, false);
 
         // Shoot laser
         api.laserControl(true);
@@ -76,7 +77,6 @@ public class YourService extends KiboRpcService {
         api.laserControl(false);
 
         // Move to goal point
-        safeMoveTo(new Point(10.696, -9.409, 5.299), KiboConstants.GOAL_ROT, false);
         safeMoveTo(KiboConstants.GOAL_POS, KiboConstants.GOAL_ROT, false);
 
         api.reportMissionCompletion();
@@ -93,16 +93,26 @@ public class YourService extends KiboRpcService {
     }
 
     /**
-     * Move Astrobee to a point, and deal with having to retry if the movement fails.
+     * Move Astrobee to a point using A* pathfinding, and deal with having to retry if the movement fails.
      * @param point {@link Point} to move to
      * @param quaternion {@link Quaternion} to rotate to
      * @param print_position {@code boolean} representing if Astrobee's position should be logged to the console
      */
     public void safeMoveTo(Point point, Quaternion quaternion, boolean print_position) {
-        Result result = api.moveTo(point, quaternion, print_position);
-        if (!result.hasSucceeded()) { // TODO?: maybe try slightly changing goal point/rot to make movements work if needed
-            for (int i = 0; i < MOVE_TO_RETRIES || result.hasSucceeded(); i++) {
-                result = api.moveTo(point, quaternion, print_position);
+        cells.resetAll();
+        AStar aStar = new AStar(cells, cells.getCellFromPoint(point)); // May be a bit memory intensive, but create a clone of our grid so we can freely edit cell values without affecting future runs
+        Point start = api.getRobotKinematics().getPosition();
+        Log.i("Jebediah","INFO: Starting A* search from " + start + " to " + point);
+        ArrayList<Cell> segments = aStar.pathfind(cells.getCellFromPoint(start)); // TODO: handle null return
+        Log.i("Jebediah","INFO: A* search finished! Route is " + segments.size() + " cells long");
+        segments.add(cells.getCellFromPoint(point)); // Add our final position
+        for (Cell cell : segments) {
+            Point moveToPoint = cell.getCenter();
+            Result result = api.moveTo(moveToPoint, quaternion, print_position);
+            if (!result.hasSucceeded()) {
+                for (int i = 0; i < KiboConstants.MOVE_TO_RETRIES || result.hasSucceeded(); i++) {
+                    result = api.moveTo(moveToPoint, quaternion, print_position);
+                }
             }
         }
     }

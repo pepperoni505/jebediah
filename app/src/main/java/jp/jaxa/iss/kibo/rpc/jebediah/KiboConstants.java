@@ -64,4 +64,8 @@ public final class KiboConstants {
     public static final double ASTROBEE_MAX_THRUST_N = 0.6; // Only for X axis per 3.6.2 in the guidebook
     public static final double ASTROBEE_MIN_MOVING_DISTANCE_M = 0.05;
     public static final double ASTROBEE_MIN_ROTATING_ANGLE_DEG = 7.5;
+
+    // Custom constants
+    public static final int MAX_CELL_DEPTH = 4;
+    public static final int MOVE_TO_RETRIES = 5;
 }
